@@ -5,3 +5,4 @@ class LayerType(Enum):
     STATIC = 1
     DYNAMIC = 2
     OBSOLOTES = 3
+

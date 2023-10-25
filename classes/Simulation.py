@@ -5,7 +5,7 @@ from classes.Board import *
 
 class Simulation:
     def __init__(self):
-        self.screen = pygame.display.set_mode((HEIGHT, WIDTH))
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Simulation")
         self.running = True
         self.board = Board(self.screen)
