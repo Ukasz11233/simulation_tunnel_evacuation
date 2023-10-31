@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 from settings import *
 from classes.Board import *
 
@@ -17,4 +17,9 @@ class Simulation:
                     self.running = False
             self.board.drawBoard()
             pygame.display.flip()
-
+    
+    def input(self, events):
+        for event in events:
+            if(input(event.key.get_pressed(pygame.K_ESCAPE)) == True) or (event.type == pygame.QUIT):
+                self.running = False
+            
