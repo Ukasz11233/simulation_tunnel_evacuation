@@ -19,9 +19,9 @@ class Simulation:
                 if event.type == pygame.QUIT:
                     self.running = False
             self.board.updateBoardLayers()
-            for man in self.people:
-                man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed()))
-                man.draw()
+            # for man in self.people:
+            #     man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed()))
+            #     man.draw()
             pygame.display.flip()
     
     def input(self, events):

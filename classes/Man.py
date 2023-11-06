@@ -1,9 +1,8 @@
 from settings import *
 from common import *
 import pygame
-from classes.Layer import *
 
-class Man(Layer):
+class Man():
     def __init__(self, _x, _y, _screen, _speed = 1) -> None:
         self.currentX = _x
         self.currentY = _y

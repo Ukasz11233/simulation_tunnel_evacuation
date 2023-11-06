@@ -1,36 +1,44 @@
 import pygame
 from common import *
 from settings import *
-from classes.Layer import *
 
-class Cell:
-    def __init__(self, _screen, _isObstacle=False) -> None:
-        self.isObstacleFlag = _isObstacle
-        self.isExitFlag = False
-        self.staticValue = 0
+
+class CellAdapter:
+    def __init__(self, _screen) -> None:
         self.screen = _screen
-        self.Layers = [Layer() for _ in range(len(LayerType))]
+        self.isUsed = False
+        self.value = 0
         pass
 
-    def setObstacle(self):
-        self.isObstacleFlag = True
+    def setValue(self, _value):
+        self.isUsed = True
+        self.value = _value
+        return
 
-    def setExit(self):
-        self.isExitFlag = True
+    def getValue(self):
+        return self.value
 
-    def isExit(self) -> bool:
-        return self.isExitFlag
-
-    def isObstacle(self) -> bool:
-        return self.isObstacleFlag
-
-    def setLayerVal(self, layerType, value):
-        self.Layers[layerType.value].setValue(value)
-
-    def getStaticValue(self):
-        return self.Layers[LayerType.STATIC.value].getValue()
+    def isSet(self):
+        return self.isUsed
     
-    def updateLayers(self):
-        for layer in self.Layers:
-            if(layer.value == LayerType.OBSTACLE.value):
-                continue
+    def move(self, positionXY):
+        self.isUsed = True
+        return
+
+
+
+class ObstacleCell(CellAdapter):
+    def __init__(self, _screen, _isObstacle) -> None:
+        super().__init__(_screen)
+
+
+class ManCell(CellAdapter):
+    def __init__(self, _screen, x, y) -> None:
+        super().__init__(_screen)
+        self.currentX = x
+        self.currentY = y
+
+    def move(self, positionXY):
+        self.currentX = positionXY[0]
+        self.currentY = positionXY[1]
+        return super().move(positionXY)

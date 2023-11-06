@@ -2,44 +2,24 @@ import math
 import pygame
 from settings import *
 from classes.Cell import *
-
+from classes.Layer import *
 
 class Board:
     def __init__(self, _screen) -> None:
-
-        self.boardWidth = BOARD_WIDTH
-        self.boardHeight = BOARD_HEIGHT
         self.screen = _screen
-        self.board = [[Cell(self.screen) for _ in range(self.boardHeight)]
-                      for _ in range(self.boardWidth)]
+        self.layers = [Layer(self.screen, i) for i in range(len(LayerType))]
         self.createWalls()
         self.createExit()
         self.calcualteStaticLayer()
-        self.tmpMaxStaticVal = self.getMaxStaticValue()
+        self.addPeople()
         pass
 
     def updateBoardLayers(self):
-        for x in range(self.boardWidth):
-            for y in range(self.boardHeight):
-                self.board[x][y].updateLayers()
-                self.drawCell(x, y)
-
-    def drawCell(self, x, y):
-        def _drawCellColored(color):
-            pygame.draw.rect(
-                self.screen, color, (x * CELL_SIZE, y, CELL_SIZE, CELL_SIZE))
-
-        def _checkIfCellIsOnPath(x, y):
-            return (y > TOP_TUNNEL_HEIGHT + PATH_HEIGHT or y < TOP_TUNNEL_HEIGHT or x < PATH_WIDTH or x > BOARD_WIDTH - PATH_WIDTH)
-
-        if (self.board[x][y].isObstacle()):
-            _drawCellColored(RED)
-        elif (self.board[x][y].isExit()):
-            _drawCellColored(GREEN)
-        elif (_checkIfCellIsOnPath(x, y)):
-            scaledBlue = abs(
-                255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
-            _drawCellColored((0, 0, scaledBlue))
+        for x in range(BOARD_WIDTH):
+            for y in range(BOARD_HEIGHT):
+                self.movePeople(x, y)
+                for layer in self.layers:
+                    layer.drawLayer(x, y)                        
 
     def createWalls(self):
         self.drawOuterHorizontalWalls()
@@ -49,44 +29,49 @@ class Board:
 
     def drawOuterHorizontalWalls(self):
         for x in range(BOARD_WIDTH):
-            self.board[x][0].setObstacle()
-            self.board[x][BOARD_HEIGHT-1].setObstacle()
+            self.layers[LayerType.OBSTACLE.value].setCellValue(x, 0, ObstacleType.WALL)
+            self.layers[LayerType.OBSTACLE.value].setCellValue(x, BOARD_HEIGHT - 1, ObstacleType.WALL)
 
     def drawInnerHorizontalWalls(self):
         bottomWall = BOARD_HEIGHT - BOTTOM_TUNNEL_HEIGHT - 1
         topWall = TOP_TUNNEL_HEIGHT - 1
         for x in range(PATH_WIDTH, BOARD_WIDTH - PATH_WIDTH):
-            self.board[x][bottomWall].setObstacle()
-            self.board[x][topWall].setObstacle()
+            self.layers[LayerType.OBSTACLE.value].setCellValue(x, bottomWall, ObstacleType.WALL)
+            self.layers[LayerType.OBSTACLE.value].setCellValue(x, topWall, ObstacleType.WALL)
 
     def drawOuterVerticalWalls(self):
         for y in range(BOARD_HEIGHT):
-            self.board[0][y].setObstacle()
-            self.board[BOARD_WIDTH-1][y].setObstacle()
+            self.layers[LayerType.OBSTACLE.value].setCellValue(0, y, ObstacleType.WALL)
+            self.layers[LayerType.OBSTACLE.value].setCellValue(BOARD_WIDTH-1, y, ObstacleType.WALL)
 
     def drawInnerVerticalWalls(self):
         for y in range(TOP_TUNNEL_HEIGHT, PATH_HEIGHT + TOP_TUNNEL_HEIGHT):
-            self.board[PATH_WIDTH][y].setObstacle()
-            self.board[BOARD_WIDTH - PATH_WIDTH][y].setObstacle()
+            self.layers[LayerType.OBSTACLE.value].setCellValue(PATH_WIDTH, y, ObstacleType.WALL)
+            self.layers[LayerType.OBSTACLE.value].setCellValue(BOARD_WIDTH - PATH_WIDTH, y, ObstacleType.WALL)
 
     def createExit(self):
         for x in range(EXIT_WIDTH):
             for y in range(BOARD_HEIGHT-1, BOARD_HEIGHT - BOTTOM_TUNNEL_HEIGHT, -1):
-                self.board[x][y].setExit()
+                self.layers[LayerType.OBSTACLE.value].setCellValue(x, y, ObstacleType.EXIT)
 
     def calcualteStaticLayer(self):
         calculatedValue = 0
+        maxVal = -1
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
                 calculatedValue = math.sqrt(pow(EXIT_X - x, 2) + pow(EXIT_Y - y, 2))
-                self.board[x][y].setLayerVal(LayerType.STATIC, calculatedValue)
+                self.layers[LayerType.STATIC.value].setCellValue(x, y, calculatedValue)
+                maxVal = max(maxVal, calculatedValue)
+        print(maxVal) # here I'm printing temporary maxStaticValue which is used as "magic number" in Layer.drawLeyer method 
 
-    def getMaxStaticValue(self):
-        result = 0
-        for x in range(BOARD_WIDTH):
-            for y in range(BOARD_HEIGHT):
-                result = max(result, self.board[x][y].getStaticValue())
-        return result
+
+    def addPeople(self):
+        self.layers[LayerType.POSITION.value].setCellValue(100, 50, True)
+
+    def movePeople(self, x, y):
+        if(self.layers[LayerType.POSITION.value].getCellValue(x, y) == 0):
+            return
+        self.layers[LayerType.POSITION.value].move(x, y, self.calculateMove((x, y), 1))
 
     def calculateMove(self, positionXY, speed):
         x, y = positionXY
@@ -96,8 +81,9 @@ class Board:
 
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
-                static_value = self.board[move_x][move_y].getStaticValue()
-                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
+                static_value = self.layers[LayerType.STATIC.value].getCellValue(move_x, move_y)
+                print(bestMove, static_value)
+                if (not self.layers[LayerType.OBSTACLE.value].getCellValue(move_x, move_y) == ObstacleType.WALL.value) and bestMove > static_value:
                     bestMove = static_value
                     bestPosition = (move_x, move_y)
 
