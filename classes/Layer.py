@@ -8,3 +8,6 @@ class Layer:
 
     def getValue(self):
         return self.value
+    
+    def doSth():
+        return

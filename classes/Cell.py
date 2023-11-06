@@ -29,3 +29,8 @@ class Cell:
 
     def getStaticValue(self):
         return self.Layers[LayerType.STATIC.value].getValue()
+    
+    def updateLayers(self):
+        for layer in self.Layers:
+            if(layer.value == LayerType.OBSTACLE.value):
+                continue
