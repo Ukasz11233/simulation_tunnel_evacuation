@@ -83,9 +83,11 @@ class Board:
 
     def getMaxStaticValue(self):
         result = 0
+        # print(self.board)
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
                 result = max(result, self.board[x][y].getStaticValue())
+        print(result)
         return result
 
     def calculateMove(self, positionXY, speed):
