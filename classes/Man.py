@@ -4,7 +4,7 @@ import pygame
 from classes.Layer import *
 
 class Man(Layer):
-    def __init__(self, _x, _y, _screen, _speed) -> None:
+    def __init__(self, _x, _y, _screen, _speed = SPEED) -> None:
         self.currentX = _x
         self.currentY = _y
         self.screen = _screen
