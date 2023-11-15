@@ -179,16 +179,15 @@ class Board:
                 fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
                 if not self.board[move_x][move_y].isObstacle() and bestMove > static_value + fire_value:  # Zmodyfikowany warunek z uwzględnieniem ognia
                     bestMove = static_value + fire_value
+                # TODO:
+                # current_value
+                # dynamic_value
+                # define N, alfa, beta
+                # isObstacle(), isOtherMan()
+                # wzor = N * current_value * math.exp(alfa*dynamic_value) * math.exp(beta*static_value) * (1-isObstacle()) * (1-isOtherMan())
                 if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
                     bestMove = static_value
                     bestPosition = (move_x, move_y)
-                    new_dynamic = dynamic_value
-
-        # UPGRADE dynamic_value
-        best_x, best_y = bestPosition
-        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, new_dynamic+1)
-        # if self.board[best_x][best_y].getDynamicValue()>2:
-        print(bestPosition, self.board[best_x][best_y].getDynamicValue())
 
         return bestPosition
     
@@ -201,4 +200,3 @@ class Board:
     # S[i,j] - wartość warstwy statycznej
     # n[i,j] - wartość określająca czy komórka nie jest zajęta przez przeszkodę
     # d[i,j] - wartość określająca czy komórka nie jest zajęta przez inną osobę
-        return bestPosition
