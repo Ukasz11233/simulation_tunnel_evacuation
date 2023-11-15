@@ -99,9 +99,24 @@ class Board:
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
                 static_value = self.board[move_x][move_y].getStaticValue()
+                # TODO:
+                # current_value
+                # dynamic_value
+                # define N, alfa, beta
+                # isObstacle(), isOtherMan()
+                # wzor = N * current_value * math.exp(alfa*dynamic_value) * math.exp(beta*static_value) * (1-isObstacle()) * (1-isOtherMan())
                 if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
                     bestMove = static_value
                     bestPosition = (move_x, move_y)
 
         return bestPosition
     
+    # TODO: 
+    # p[i,j] = N * M[i,j] * exp(alfa*D[i,j]) * exp(beta*S[i,j]) * (1-n[i,j]) * d[i,j]
+    # p[i,j] - prawdopodobieństwo przejścia do komórki o współrzędnych (i, j)
+    # N - współczynnik normalizacji ???
+    # M[i,j] - wartość podstawowa (current_value)
+    # D[i,j] - wartość warstwy dynamicznej (dynamic_value)
+    # S[i,j] - wartość warstwy statycznej
+    # n[i,j] - wartość określająca czy komórka nie jest zajęta przez przeszkodę
+    # d[i,j] - wartość określająca czy komórka nie jest zajęta przez inną osobę
