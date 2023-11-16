@@ -16,6 +16,7 @@ class Board:
         self.createExit()
         self.calcualteStaticLayer()
         self.tmpMaxStaticVal = self.getMaxStaticValue()
+        self.createFire()  # Nowa metoda do inicjalizacji warstwy ognia
         pass
 
     def updateBoardLayers(self):
@@ -23,6 +24,11 @@ class Board:
             for y in range(self.boardHeight):
                 self.board[x][y].updateLayers()
                 self.drawCell(x, y)
+
+    def createFire(self):  # Nowa metoda do inicjalizacji warstwy ognia
+        for x in range(BOARD_WIDTH):
+            for y in range(BOARD_HEIGHT):
+                self.board[x][y].setLayerVal(LayerType.FIRE, 0)
 
     def drawCell(self, x, y):
         def _drawCellColored(color):
@@ -40,6 +46,9 @@ class Board:
             scaledBlue = abs(
                 255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
             _drawCellColored((0, 0, scaledBlue))
+        fire_value = self.board[x][y].getFireValue()  # Nowa linia do pobrania wartości warstwy ognia
+        scaled_fire_value = int((fire_value * 255) / MAX_FIRE_VALUE)  # Nowa linia do skalowania wartości ognia
+        _drawCellColored((255, scaled_fire_value, 0))  # Nowa linia do rysowania komórek z ogniem
 
     def createWalls(self):
         self.drawOuterHorizontalWalls()
@@ -97,8 +106,9 @@ class Board:
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
                 static_value = self.board[move_x][move_y].getStaticValue()
-                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
-                    bestMove = static_value
+                fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
+                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value + fire_value:  # Zmodyfikowany warunek z uwzględnieniem ognia
+                    bestMove = static_value + fire_value
                     bestPosition = (move_x, move_y)
 
         return bestPosition
