@@ -15,6 +15,7 @@ class Board:
         self.createWalls()
         self.createExit()
         self.calcualteStaticLayer()
+        self.inicializeDynamicLayer()
         self.tmpMaxStaticVal = self.getMaxStaticValue()
         pass
 
@@ -89,9 +90,15 @@ class Board:
                 result = max(result, self.board[x][y].getStaticValue())
         print(result)
         return result
+    
+    def inicializeDynamicLayer(self):
+        for x in range(BOARD_WIDTH):
+            for y in range(BOARD_HEIGHT):
+                self.board[x][y].setLayerVal(LayerType.DYNAMIC, 1)  #zeby nie zerowac prawdopodobienstw
 
     def calculateMove(self, positionXY, speed):
         x, y = positionXY
+        new_dynamic = 0
         bestMove = float('inf')
         bestPosition = positionXY
         moves = [(x-speed, y), (x+speed, y), (x, y-speed), (x, y+speed)]
@@ -99,6 +106,7 @@ class Board:
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
                 static_value = self.board[move_x][move_y].getStaticValue()
+                dynamic_value = self.board[move_x][move_y].getDynamicValue()
                 # TODO:
                 # current_value
                 # dynamic_value
@@ -108,6 +116,13 @@ class Board:
                 if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
                     bestMove = static_value
                     bestPosition = (move_x, move_y)
+                    new_dynamic = dynamic_value
+
+        # UPGRADE dynamic_value
+        best_x, best_y = bestPosition
+        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, new_dynamic+1)
+        # if self.board[best_x][best_y].getDynamicValue()>2:
+        print(bestPosition, self.board[best_x][best_y].getDynamicValue())
 
         return bestPosition
     

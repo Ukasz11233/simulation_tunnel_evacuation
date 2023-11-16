@@ -30,6 +30,9 @@ class Cell:
     def getStaticValue(self):
         return self.Layers[LayerType.STATIC.value].getValue()
     
+    def getDynamicValue(self):
+        return self.Layers[LayerType.DYNAMIC.value].getValue()
+    
     def updateLayers(self):
         for layer in self.Layers:
             if(layer.value == LayerType.OBSTACLE.value):
