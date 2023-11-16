@@ -33,6 +33,9 @@ class Cell:
     def getDynamicValue(self):
         return self.Layers[LayerType.DYNAMIC.value].getValue()
     
+    def getFireValue(self):  # Nowa metoda dla warstwy ognia
+        return self.Layers[LayerType.FIRE.value].getValue()
+
     def updateLayers(self):
         for layer in self.Layers:
             if(layer.value == LayerType.OBSTACLE.value):

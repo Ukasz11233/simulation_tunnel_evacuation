@@ -6,6 +6,7 @@ class LayerType(Enum):
     STATIC = 1
     DYNAMIC = 2
     OBSTACLE = 3
+    FIRE = 4
 
 
 CELL_SIZE = WIDTH // BOARD_WIDTH
