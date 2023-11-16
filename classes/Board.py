@@ -94,7 +94,7 @@ class Board:
     def inicializeDynamicLayer(self):
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
-                self.board[x][y].setLayerVal(LayerType.DYNAMIC, 1)  #zeby nie zerowac prawdopodobienstw
+                self.board[x][y].setLayerVal(LayerType.DYNAMIC, 0)
 
     def calculateMove(self, positionXY, speed):
         x, y = positionXY
