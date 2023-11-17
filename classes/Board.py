@@ -15,6 +15,7 @@ class Board:
         self.createWalls()
         self.createExit()
         self.calcualteStaticLayer()
+        self.inicializeDynamicLayer()
         self.tmpMaxStaticVal = self.getMaxStaticValue()
         pass
 
@@ -144,13 +145,21 @@ class Board:
 
     def getMaxStaticValue(self):
         result = 0
+        # print(self.board)
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
                 result = max(result, self.board[x][y].getStaticValue())
+        print(result)
         return result
+    
+    def inicializeDynamicLayer(self):
+        for x in range(BOARD_WIDTH):
+            for y in range(BOARD_HEIGHT):
+                self.board[x][y].setLayerVal(LayerType.DYNAMIC, 0)
 
     def calculateMove(self, positionXY, speed):
         x, y = positionXY
+        new_dynamic = 0
         bestMove = float('inf')
         bestPosition = positionXY
         moves = [(x-speed, y), (x+speed, y), (x, y-speed), (x, y+speed)]
@@ -158,8 +167,35 @@ class Board:
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
                 static_value = self.board[move_x][move_y].getStaticValue()
-                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
-                    bestMove = static_value
+                dynamic_value = self.board[move_x][move_y].getDynamicValue()
+                # TODO:
+                # current_value
+                # dynamic_value
+                # define N, alfa, beta
+                # isObstacle(), isOtherMan()
+                # wzor = N * current_value * math.exp(alfa*dynamic_value) * math.exp(beta*static_value) * (1-isObstacle()) * (1-isOtherMan())
+                fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
+                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value + fire_value:  # Zmodyfikowany warunek z uwzględnieniem ognia
+                    bestMove = static_value + fire_value
+                    new_dynamic = dynamic_value
                     bestPosition = (move_x, move_y)
+    
+        # UPGRADE dynamic_value
+        best_x, best_y = bestPosition
+        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, new_dynamic+1)
+        # if self.board[best_x][best_y].getDynamicValue()>2:
+        print(bestPosition, self.board[best_x][best_y].getDynamicValue())
+
 
         return bestPosition
+    
+    # TODO: 
+    # p[i,j] = N * M[i,j] * exp(alfa*D[i,j]) * exp(beta*S[i,j]) * (1-n[i,j]) * d[i,j]
+    # p[i,j] - prawdopodobieństwo przejścia do komórki o współrzędnych (i, j)
+    # N - współczynnik normalizacji ???
+    # M[i,j] - wartość podstawowa (current_value)
+    # D[i,j] - wartość warstwy dynamicznej (dynamic_value)
+    # S[i,j] - wartość warstwy statycznej
+    # n[i,j] - wartość określająca czy komórka nie jest zajęta przez przeszkodę
+    # d[i,j] - wartość określająca czy komórka nie jest zajęta przez inną osobę
+

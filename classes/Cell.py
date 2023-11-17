@@ -29,8 +29,14 @@ class Cell:
 
     def getStaticValue(self):
         return self.Layers[LayerType.STATIC.value].getValue()
+
+    def getDynamicValue(self):
+        return self.Layers[LayerType.DYNAMIC.value].getValue()
     
+    def getFireValue(self):  # Nowa metoda dla warstwy ognia
     # Dodanie funkcji do ustawiania wartości warstw dla ognia i dymu
+        pass
+
     def setFireValue(self, value):
         self.Layers[LayerType.FIRE.value].setValue(value)
 
@@ -44,6 +50,10 @@ class Cell:
     def getSmokeValue(self):
         return self.Layers[LayerType.SMOKE.value].getValue()
 
+
+    def getDynamicValue(self):
+        return self.Layers[LayerType.DYNAMIC.value].getValue()
+    
     def updateLayers(self):
         for layer in self.Layers:
             if layer.value == LayerType.OBSTACLE.value:
