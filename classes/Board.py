@@ -2,11 +2,11 @@ import math
 import pygame
 from settings import *
 from classes.Cell import *
+import random
 
 
 class Board:
     def __init__(self, _screen) -> None:
-
         self.boardWidth = BOARD_WIDTH
         self.boardHeight = BOARD_HEIGHT
         self.screen = _screen
@@ -16,7 +16,6 @@ class Board:
         self.createExit()
         self.calcualteStaticLayer()
         self.tmpMaxStaticVal = self.getMaxStaticValue()
-        self.createFire()  # Nowa metoda do inicjalizacji warstwy ognia
         pass
 
     def updateBoardLayers(self):
@@ -25,30 +24,26 @@ class Board:
                 self.board[x][y].updateLayers()
                 self.drawCell(x, y)
 
-    def createFire(self):  # Nowa metoda do inicjalizacji warstwy ognia
-        for x in range(BOARD_WIDTH):
-            for y in range(BOARD_HEIGHT):
-                self.board[x][y].setLayerVal(LayerType.FIRE, 0)
-
     def drawCell(self, x, y):
         def _drawCellColored(color):
-            pygame.draw.rect(
-                self.screen, color, (x * CELL_SIZE, y, CELL_SIZE, CELL_SIZE))
+            color = tuple(max(0, min(value, 255)) for value in color)
+            pygame.draw.rect(self.screen, color, (x * CELL_SIZE, y, CELL_SIZE, CELL_SIZE))
 
         def _checkIfCellIsOnPath(x, y):
             return (y > TOP_TUNNEL_HEIGHT + PATH_HEIGHT or y < TOP_TUNNEL_HEIGHT or x < PATH_WIDTH or x > BOARD_WIDTH - PATH_WIDTH)
 
-        if (self.board[x][y].isObstacle()):
+        if self.board[x][y].isObstacle():
             _drawCellColored(RED)
-        elif (self.board[x][y].isExit()):
+        elif self.board[x][y].isExit():
             _drawCellColored(GREEN)
-        elif (_checkIfCellIsOnPath(x, y)):
+        elif _checkIfCellIsOnPath(x, y):
             scaledBlue = abs(
                 255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
-            _drawCellColored((0, 0, scaledBlue))
-        fire_value = self.board[x][y].getFireValue()  # Nowa linia do pobrania wartości warstwy ognia
-        scaled_fire_value = int((fire_value * 255) / MAX_FIRE_VALUE)  # Nowa linia do skalowania wartości ognia
-        _drawCellColored((255, scaled_fire_value, 0))  # Nowa linia do rysowania komórek z ogniem
+
+            scaledRed = (self.board[x][y].getFireValue() * 255) // 100
+            scaledGray = (self.board[x][y].getSmokeValue() * 255) // 100
+
+            _drawCellColored((scaledRed, 0, scaledBlue - scaledGray))
 
     def createWalls(self):
         self.drawOuterHorizontalWalls()
@@ -83,6 +78,63 @@ class Board:
             for y in range(BOARD_HEIGHT-1, BOARD_HEIGHT - BOTTOM_TUNNEL_HEIGHT, -1):
                 self.board[x][y].setExit()
 
+    def calculateFireAndSmoke(self):
+        for x in range(1, BOARD_WIDTH - 1):
+            for y in range(1, BOARD_HEIGHT - 1):
+                fire_value = self.board[x][y].getFireValue()
+                smoke_value = self.board[x][y].getSmokeValue()
+
+                # Symulacja rozprzestrzeniania się ognia
+                if fire_value > 0:
+                    for i in range(-1, 2):
+                        for j in range(-1, 2):
+                            if not (i == 0 and j == 0):
+                                neighbor_x = x + i
+                                neighbor_y = y + j
+                                if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
+                                    # Prawdopodobieństwo, że ogień się rozprzestrzeni
+                                    spread_probability = 0.8
+                                    if random.random() < spread_probability:
+                                        self.board[neighbor_x][neighbor_y].setFireValue(fire_value * 0.8)
+
+                # Symulacja rozprzestrzeniania się dymu
+                if smoke_value > 0:
+                    # Rozprzestrzenianie się dymu w górę
+                    self.board[x][y - 1].setSmokeValue(smoke_value * 0.7)
+
+                    # Rozprzestrzenianie się dymu na boki
+                    for i in range(-1, 2):
+                        neighbor_x = x + i
+                        neighbor_y = y
+                        if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
+                            self.board[neighbor_x][neighbor_y].setSmokeValue(smoke_value * 0.5)
+
+                # Źródło ognia i dymu
+                if fire_value == 0 and smoke_value == 0:
+                    source_probability = 0.01
+                    if random.random() < source_probability:
+                        intensity = random.randint(50, 100)  # Losowa intensywność ognia
+                        density = random.randint(20, 50)  # Losowa gęstość dymu
+                        self.board[x][y].setFireValue(intensity)
+                        self.board[x][y].setSmokeValue(density)
+
+    def initializeFire(self):
+        for _ in range(random.randint(5, 10)):
+            x, y = random.randint(1, BOARD_WIDTH - 2), random.randint(1, BOARD_HEIGHT - 2)
+            intensity = random.randint(50, 100)  # Losowa intensywność ognia
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    neighbor_x = x + i
+                    neighbor_y = y + j
+                    if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
+                        self.board[neighbor_x][neighbor_y].setFireValue(intensity)
+
+    def initializeSmoke(self):
+        for x in range(1, BOARD_WIDTH - 1):
+            for y in range(1, BOARD_HEIGHT - 1):
+                density = random.randint(20, 50)  # Losowa gęstość dymu
+                self.board[x][y].setSmokeValue(density)
+
     def calcualteStaticLayer(self):
         calculatedValue = 0
         for x in range(BOARD_WIDTH):
@@ -106,10 +158,8 @@ class Board:
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
                 static_value = self.board[move_x][move_y].getStaticValue()
-                fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
-                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value + fire_value:  # Zmodyfikowany warunek z uwzględnieniem ognia
-                    bestMove = static_value + fire_value
+                if not self.board[move_x][move_y].isObstacle() and bestMove > static_value:
+                    bestMove = static_value
                     bestPosition = (move_x, move_y)
 
         return bestPosition
-    
