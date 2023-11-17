@@ -34,7 +34,7 @@ class Simulation:
     def bus_position(self):
         # TODO: changing speed and adjusting it to the inner walls
         table = []
-        random_values_x = random.sample(range(-10, 11), EVACUATORS)#[random.randint(-10, 10) for _ in range(EVACUATORS)]
+        random_values_x = random.sample(range(-EVACUATORS, EVACUATORS+1), EVACUATORS)#[random.randint(-10, 10) for _ in range(EVACUATORS)]
         random_values_y = [random.randint(-5, 5) for _ in range(EVACUATORS)]
         # random_speed = [random.randint(1,2) for _ in range(EVACUATORS)]
         print(random_values_x, random_values_y)
