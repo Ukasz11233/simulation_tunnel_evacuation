@@ -186,6 +186,7 @@ class Board:
         # if self.board[best_x][best_y].getDynamicValue()>2:
         print(bestPosition, self.board[best_x][best_y].getDynamicValue())
 
+
         return bestPosition
     
     # TODO: 
@@ -197,3 +198,4 @@ class Board:
     # S[i,j] - wartość warstwy statycznej
     # n[i,j] - wartość określająca czy komórka nie jest zajęta przez przeszkodę
     # d[i,j] - wartość określająca czy komórka nie jest zajęta przez inną osobę
+
