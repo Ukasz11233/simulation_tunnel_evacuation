@@ -34,9 +34,22 @@ class Cell:
         return self.Layers[LayerType.DYNAMIC.value].getValue()
     
     def getFireValue(self):  # Nowa metoda dla warstwy ognia
+    # Dodanie funkcji do ustawiania wartości warstw dla ognia i dymu
+        pass
+    def setFireValue(self, value):
+        self.Layers[LayerType.FIRE.value].setValue(value)
+
+    def setSmokeValue(self, value):
+        self.Layers[LayerType.SMOKE.value].setValue(value)
+
+    # Pobieranie wartości warstw dla ognia i dymu
+    def getFireValue(self):
         return self.Layers[LayerType.FIRE.value].getValue()
+
+    def getSmokeValue(self):
+        return self.Layers[LayerType.SMOKE.value].getValue()
 
     def updateLayers(self):
         for layer in self.Layers:
-            if(layer.value == LayerType.OBSTACLE.value):
+            if layer.value == LayerType.OBSTACLE.value:
                 continue
