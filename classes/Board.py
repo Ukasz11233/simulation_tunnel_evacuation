@@ -61,8 +61,9 @@ class Board:
         bottomWall = BOARD_HEIGHT - BOTTOM_TUNNEL_HEIGHT - 1
         topWall = TOP_TUNNEL_HEIGHT - 1
         for x in range(PATH_WIDTH, BOARD_WIDTH - PATH_WIDTH):
-            self.board[x][bottomWall].setObstacle()
-            self.board[x][topWall].setObstacle()
+            for i in range(SPEED):
+                self.board[x][bottomWall-i].setObstacle()
+                self.board[x][topWall+i].setObstacle()
 
     def drawOuterVerticalWalls(self):
         for y in range(BOARD_HEIGHT):
@@ -71,8 +72,9 @@ class Board:
 
     def drawInnerVerticalWalls(self):
         for y in range(TOP_TUNNEL_HEIGHT, PATH_HEIGHT + TOP_TUNNEL_HEIGHT):
-            self.board[PATH_WIDTH][y].setObstacle()
-            self.board[BOARD_WIDTH - PATH_WIDTH][y].setObstacle()
+            for i in range(SPEED):
+                self.board[PATH_WIDTH+i][y].setObstacle()
+                self.board[BOARD_WIDTH - PATH_WIDTH - i][y].setObstacle()
 
     def createExit(self):
         for x in range(EXIT_WIDTH):
@@ -162,7 +164,12 @@ class Board:
         new_dynamic = 0
         bestMove = float('inf')
         bestPosition = positionXY
-        moves = [(x-speed, y), (x+speed, y), (x, y-speed), (x, y+speed)]
+        moves = []
+        for distance in range(0, speed):
+            moves.append((x-distance, y))
+            moves.append((x+distance, y))
+            moves.append((x, y - distance))
+            moves.append((x, y + distance))
 
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
