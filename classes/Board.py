@@ -76,7 +76,7 @@ class Board:
 
     def createExit(self):
         for x in range(EXIT_WIDTH):
-            for y in range(BOARD_HEIGHT-1, BOARD_HEIGHT - BOTTOM_TUNNEL_HEIGHT, -1):
+            for y in range(BOARD_HEIGHT-1, BOARD_HEIGHT - EXIT_HEIGHT, -1):
                 self.board[x][y].setExit()
 
     def calculateFireAndSmoke(self):
@@ -149,7 +149,7 @@ class Board:
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
                 result = max(result, self.board[x][y].getStaticValue())
-        print(result)
+        # print(result)
         return result
     
     def inicializeDynamicLayer(self):
@@ -184,7 +184,7 @@ class Board:
         best_x, best_y = bestPosition
         self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, new_dynamic+1)
         # if self.board[best_x][best_y].getDynamicValue()>2:
-        print(bestPosition, self.board[best_x][best_y].getDynamicValue())
+        # print(bestPosition, self.board[best_x][best_y].getDynamicValue())
 
 
         return bestPosition
