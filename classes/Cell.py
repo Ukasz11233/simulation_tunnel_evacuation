@@ -50,11 +50,8 @@ class Cell:
     def getSmokeValue(self):
         return self.Layers[LayerType.SMOKE.value].getValue()
 
-
-    def getDynamicValue(self):
-        return self.Layers[LayerType.DYNAMIC.value].getValue()
-    
     def updateLayers(self):
         for layer in self.Layers:
             if layer.value == LayerType.OBSTACLE.value:
                 continue
+            # if layer.value == LayerType.FIRE.value:

@@ -13,7 +13,7 @@ class Validation:
         return False
     
     def final(self):
-        return not self.numOfEscaped >= 50
+        return not self.numOfEscaped >= 80
     
 
     def getNumOfEscaped(self):
