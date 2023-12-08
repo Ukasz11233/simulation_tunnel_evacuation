@@ -3,6 +3,7 @@ from common import *
 from settings import *
 from classes.Layer import *
 
+
 class Cell:
     def __init__(self, _screen, _isObstacle=False) -> None:
         self.isObstacleFlag = _isObstacle

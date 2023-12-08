@@ -1,6 +1,7 @@
 from enum import Enum
 from settings import WIDTH, BOARD_WIDTH
 
+
 class LayerType(Enum):
     POSITION = 0
     STATIC = 1

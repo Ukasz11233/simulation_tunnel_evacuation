@@ -3,6 +3,7 @@ from common import *
 import pygame
 from classes.Layer import *
 
+
 class Man(Layer):
     def __init__(self, _x, _y, _screen, _speed) -> None:
         self.currentX = _x

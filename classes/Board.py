@@ -39,17 +39,13 @@ class Board:
         elif self.board[x][y].isExit():
             _drawCellColored(GREEN)
         elif _checkIfCellIsOnPath(x, y):
-            scaledBlue = abs(
-                255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
-
+            scaledBlue = abs(255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
             scaledRed = (self.board[x][y].getFireValue() * 255) // 100
             scaledGray = (self.board[x][y].getSmokeValue() * 255) // 100
-
             _drawCellColored((scaledRed, 0, scaledBlue - scaledGray))
         if self.board[x][y].getDynamicValue() > 0:
             scaledBlue = abs(255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
             dynamiValueColor = scaledBlue - (self.board[x][y].getDynamicValue() * 255) // 100
-            # print(dynamiValueColor)
             _drawCellColored((0, 0, dynamiValueColor))
 
     def createWalls(self):
@@ -116,14 +112,12 @@ class Board:
                 if smoke_value > 0:
                     # Rozprzestrzenianie się dymu w górę
                     self.board[x][y - 1].setSmokeValue(smoke_value * 0.7)
-
                     # Rozprzestrzenianie się dymu na boki
                     for i in range(-1, 2):
                         neighbor_x = x + i
                         neighbor_y = y
                         if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
                             self.board[neighbor_x][neighbor_y].setSmokeValue(smoke_value * 0.5)
-
                 # Źródło ognia i dymu
                 if fire_value == 0 and smoke_value == 0:
                     source_probability = 0.01
@@ -149,6 +143,12 @@ class Board:
             for y in range(1, BOARD_HEIGHT - 1):
                 density = random.randint(20, 50)  # Losowa gęstość dymu
                 self.board[x][y].setSmokeValue(density)
+
+    # def initializeFireAndSmoke(self, fire_sources):
+    #     for source in fire_sources:
+    #         x, y, intensity, smoke = source
+    #         self.board[x][y].setFireValue(intensity)
+    #         self.board[x][y].setSmokeValue(smoke)  # Losowa gęstość dymu
 
     def calcualteStaticLayer(self):
         calculatedValue = 0
@@ -221,4 +221,3 @@ class Board:
     # S[i,j] - wartość warstwy statycznej
     # n[i,j] - wartość określająca czy komórka nie jest zajęta przez przeszkodę
     # d[i,j] - wartość określająca czy komórka nie jest zajęta przez inną osobę
-
