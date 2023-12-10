@@ -208,6 +208,10 @@ class Board:
         self.board[x][y].setTakenByMan(False)
         return bestPosition
     
+    def removeMan(self, position : [int, int]):
+        x, y = position
+        self.board[x][y].setTakenByMan(False)
+
     # TODO: 
     # p[i,j] = N * M[i,j] * exp(alfa*D[i,j]) * exp(beta*S[i,j]) * (1-n[i,j]) * d[i,j]
     # p[i,j] - prawdopodobieństwo przejścia do komórki o współrzędnych (i, j)
