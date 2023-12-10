@@ -7,6 +7,7 @@ from classes.Layer import *
 class Cell:
     def __init__(self, _screen, _isObstacle=False) -> None:
         self.isObstacleFlag = _isObstacle
+        self.isTaken = False
         self.isExitFlag = False
         self.staticValue = 0
         self.screen = _screen
@@ -56,3 +57,9 @@ class Cell:
             if layer.value == LayerType.OBSTACLE.value:
                 continue
             # if layer.value == LayerType.FIRE.value:
+
+    def isTakenByMan(self) -> bool:
+        return self.isTaken
+    
+    def setTakenByMan(self, flag):
+        self.isTaken = flag

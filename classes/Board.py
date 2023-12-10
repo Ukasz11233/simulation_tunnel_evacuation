@@ -17,7 +17,7 @@ class Board:
         self.createBus()
         self.calcualteStaticLayer()
         self.inicializeDynamicLayer()
-        self.tmpMaxStaticVal = self.getMaxStaticValue()
+        print("STATIC VAL", self.board[0][0].getStaticValue(), self.board[0][BOARD_HEIGHT-1].getStaticValue(), self.board[BOARD_WIDTH-1][EXIT_Y-1].getStaticValue())
         pass
 
     def updateBoardLayers(self):
@@ -39,7 +39,7 @@ class Board:
         elif self.board[x][y].isExit():
             _drawCellColored(GREEN)
         elif _checkIfCellIsOnPath(x, y):
-            scaledBlue = abs(255 - (self.board[x][y].getStaticValue() * 255) // self.tmpMaxStaticVal)
+            scaledBlue = abs(255 - (self.board[x][y].getStaticValue() * 255))
             scaledRed = (self.board[x][y].getFireValue() * 255) // 100
             scaledGray = (self.board[x][y].getSmokeValue() * 255) // 100
             _drawCellColored((scaledRed, 0, scaledBlue - scaledGray))
@@ -119,7 +119,7 @@ class Board:
                         if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
                             self.board[neighbor_x][neighbor_y].setSmokeValue(smoke_value * 0.5)
                 # Źródło ognia i dymu
-                if fire_value == 0 and smoke_value == 0:
+                if fire_value == 0 and smoke_value == 0: 
                     source_probability = 0.01
                     if random.random() < source_probability:
                         intensity = random.randint(50, 100)  # Losowa intensywność ognia
@@ -152,18 +152,12 @@ class Board:
 
     def calcualteStaticLayer(self):
         calculatedValue = 0
+        self.tmpMaxStaticVal = math.sqrt(pow(BOARD_WIDTH-1, 2) + pow(EXIT_Y-1, 2))
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
-                calculatedValue = math.sqrt(pow(EXIT_X - x, 2) + pow(EXIT_Y - y, 2))
+                calculatedValue = math.sqrt(pow(EXIT_X - x, 2) + pow(EXIT_Y - y, 2))  / self.tmpMaxStaticVal
                 self.board[x][y].setLayerVal(LayerType.STATIC, calculatedValue)
 
-    def getMaxStaticValue(self):
-        result = 0
-        for x in range(BOARD_WIDTH):
-            for y in range(BOARD_HEIGHT):
-                result = max(result, self.board[x][y].getStaticValue())
-        return result
-    
     def inicializeDynamicLayer(self):
         for x in range(BOARD_WIDTH):
             for y in range(BOARD_HEIGHT):
@@ -171,22 +165,21 @@ class Board:
 
     def calculateMove(self, positionXY, speed):
         x, y = positionXY
-        new_dynamic = 0
-        bestMove = float('inf')
+        newDynamic = 0
+        bestMove = float('-inf')
         bestPosition = positionXY
         moves = []
         for distance in range(0, speed+1):
-            moves.append((x-distance, y))
-            moves.append((x+distance, y))
-            moves.append((x, y - distance))
             moves.append((x, y + distance))
+            moves.append((x, y - distance))
+            moves.append((x+distance, y))
+            moves.append((x-distance, y))
+
+        
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
-                static_value = self.board[move_x][move_y].getStaticValue()
+                static_value = 1 -  self.board[move_x][move_y].getStaticValue()
                 dynamic_value = self.board[move_x][move_y].getDynamicValue()
-                isObstacle = 0
-                if self.board[move_x][move_y].isObstacle(): 
-                    isObstacle = 1
                 # TODO:
                 # current_value
                 # dynamic_value
@@ -194,22 +187,25 @@ class Board:
                 # isObstacle(), isOtherMan()
                 # wzor = N * current_value * math.exp(alfa*dynamic_value) * math.exp(beta*static_value) * (1-isObstacle()) * (1-isOtherMan())
                 # fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
-                moveProbability = math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - isObstacle)
-                if bestMove > moveProbability and moveProbability > 0:
-                    # print(math.exp(ALFA*dynamic_value), math.exp(BETA*static_value))
+                moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - int(self.board[move_x][move_y].isObstacle())) * (1 - int(self.board[move_x][move_y].isTakenByMan()))
+                # print("Probability: ", moveProbability, bestMove, move_x, move_y, dynamic_value, static_value)
+                if moveProbability > bestMove and moveProbability > 0:
+                    # print("NEW ", math.exp(ALFA*dynamic_value), math.exp(BETA*static_value))
                     bestMove = moveProbability
-                    new_dynamic = dynamic_value
+                    newDynamic = dynamic_value
                     bestPosition = (move_x, move_y)
-    
         best_x, best_y = bestPosition
+        # print("Best move: ", bestMove, best_x, best_y)    
         # print(bestMove)
-        if(new_dynamic > 0):
-            print(static_value, new_dynamic)
-        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, new_dynamic+DYNAMIC_INCREMENT)
+        if(newDynamic > 0):
+            print(static_value, newDynamic)
+        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, newDynamic+DYNAMIC_INCREMENT)
+        self.board[x][y].setLayerVal(LayerType.DYNAMIC, newDynamic-DYNAMIC_INCREMENT)
         # if self.board[best_x][best_y].getDynamicValue()>2:
         # print(bestPosition, self.board[best_x][best_y].getDynamicValue())
 
-
+        self.board[best_x][best_y].setTakenByMan(True)
+        self.board[x][y].setTakenByMan(False)
         return bestPosition
     
     # TODO: 

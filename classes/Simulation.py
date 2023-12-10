@@ -33,12 +33,15 @@ class Simulation:
                 self.peopleInBus = self.peopleInBus[5:]
                 self.peopleInTunnel += peopleWhoLeft
             self.board.updateBoardLayers()
+            index = 0
             for man in self.peopleInTunnel:
+                print("Man ", index,  ". ")
                 man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed()))
                 if not validator.update(man.getXYPosition()):
                     updated_people.append(man)
                 # print(validator.getNumOfEscaped())                    
                 man.draw()
+                index+=1
             
             self.peopleInTunnel = updated_people
             self.displayStatistics(validator.getNumOfEscaped(), start_time)    
