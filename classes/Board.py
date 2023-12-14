@@ -3,6 +3,7 @@ import pygame
 from settings import *
 from classes.Cell import *
 import random
+import numpy as np
 
 
 class Board:
@@ -184,8 +185,18 @@ class Board:
                     for fx, fy, size, intensity in fire_sources
                 )
 
+                distance_threshold = 10
+
+                if min_distance_to_fire >= distance_threshold:
+                    min_distance_to_fire = distance_threshold
+                elif min_distance_to_fire <= 0:
+                    min_distance_to_fire = 0.000000000001
+                else:
+                    pass
+
+
                 # Modify moveProbability based on the distance to the fire
-                moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * (1 - min_distance_to_fire / 10)
+                moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * np.abs(min_distance_to_fire / distance_threshold)
                 ### FIRE CALCULATION END ###
 
                 # TODO:
