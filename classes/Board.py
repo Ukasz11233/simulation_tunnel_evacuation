@@ -79,15 +79,16 @@ class Board:
         _drawInnerVerticalWalls(self)
 
     def createExit(self):
+        print("EXIT: 0 ",BOARD_HEIGHT - EXIT_HEIGHT, -1)
         for x in range(EXIT_WIDTH):
             for y in range(BOARD_HEIGHT-1, BOARD_HEIGHT - EXIT_HEIGHT, -1):
                 self.board[x][y].setExit()
     
     def createBus(self):
+        print("BUS: ", BUS_TOP_LEFT_X, BUS_TOP_LEFT_Y)
         for x in range(BUS_TOP_LEFT_X, BUS_TOP_LEFT_X + BUS_LENGTH):
             for y in range(BUS_TOP_LEFT_Y, BUS_TOP_LEFT_Y + BUS_WIDTH):
                 self.board[x][y].setObstacle()
-                print(x, y)
 
     def calculateFireAndSmoke(self):
         for x in range(1, BOARD_WIDTH - 1):
@@ -168,26 +169,26 @@ class Board:
         newDynamic = 0
         bestMove = float('-inf')
         bestPosition = positionXY
-        moves = []
-        for distance in range(0, speed+1):
+        moves = [(x,y)]
+        for distance in range(1, speed+1):
             moves.append((x, y + distance))
             moves.append((x, y - distance))
             moves.append((x+distance, y))
             moves.append((x-distance, y))
 
+        # print("MOVES: ",  moves)
         
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
                 static_value = 1 -  self.board[move_x][move_y].getStaticValue()
                 dynamic_value = self.board[move_x][move_y].getDynamicValue()
+                obstacle_value = int(self.board[move_x][move_y].isObstacle())
+                taken_value = int(self.board[move_x][move_y].isTakenByMan())
                 # TODO:
                 # current_value
-                # dynamic_value
-                # define N, alfa, beta
-                # isObstacle(), isOtherMan()
                 # wzor = N * current_value * math.exp(alfa*dynamic_value) * math.exp(beta*static_value) * (1-isObstacle()) * (1-isOtherMan())
                 # fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
-                moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - int(self.board[move_x][move_y].isObstacle())) * (1 - int(self.board[move_x][move_y].isTakenByMan()))
+                moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value)
                 # print("Probability: ", moveProbability, bestMove, move_x, move_y, dynamic_value, static_value)
                 if moveProbability > bestMove and moveProbability > 0:
                     # print("NEW ", math.exp(ALFA*dynamic_value), math.exp(BETA*static_value))
@@ -195,14 +196,12 @@ class Board:
                     newDynamic = dynamic_value
                     bestPosition = (move_x, move_y)
         best_x, best_y = bestPosition
-        # print("Best move: ", bestMove, best_x, best_y)    
+        # print("Best move: ", bestMove, best_x-x, best_y-y)    
         # print(bestMove)
-        if(newDynamic > 0):
-            print(static_value, newDynamic)
+        # if(newDynamic > 0):
+        #     print(static_value, newDynamic)
         self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, newDynamic+DYNAMIC_INCREMENT)
         self.board[x][y].setLayerVal(LayerType.DYNAMIC, newDynamic-DYNAMIC_INCREMENT)
-        # if self.board[best_x][best_y].getDynamicValue()>2:
-        # print(bestPosition, self.board[best_x][best_y].getDynamicValue())
 
         self.board[best_x][best_y].setTakenByMan(True)
         self.board[x][y].setTakenByMan(False)
@@ -211,13 +210,3 @@ class Board:
     def removeMan(self, position : [int, int]):
         x, y = position
         self.board[x][y].setTakenByMan(False)
-
-    # TODO: 
-    # p[i,j] = N * M[i,j] * exp(alfa*D[i,j]) * exp(beta*S[i,j]) * (1-n[i,j]) * d[i,j]
-    # p[i,j] - prawdopodobieństwo przejścia do komórki o współrzędnych (i, j)
-    # N - współczynnik normalizacji ???
-    # M[i,j] - wartość podstawowa (current_value) - czyli inaczej poziom dymu
-    # D[i,j] - wartość warstwy dynamicznej (dynamic_value)
-    # S[i,j] - wartość warstwy statycznej
-    # n[i,j] - wartość określająca czy komórka nie jest zajęta przez przeszkodę
-    # d[i,j] - wartość określająca czy komórka nie jest zajęta przez inną osobę

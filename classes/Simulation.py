@@ -27,7 +27,8 @@ class Simulation:
                     self.running = False
 
             updated_people = []
-            if len(self.peopleInBus) > BUS_EXIT_BUFFOR:
+            # print(len(self.peopleInBus))
+            if len(self.peopleInBus) > 0:
                 peopleWhoLeft = self.peopleInBus[:5]
                 self.peopleInBus = self.peopleInBus[5:]
                 self.peopleInTunnel += peopleWhoLeft
@@ -49,6 +50,7 @@ class Simulation:
         
         end_time = time.time()
         print(SPEED/3 * (end_time - start_time))
+        print("CZAS RZECZYWISTY: ", end_time - start_time)
     
     def input(self, events):
         for event in events:
@@ -67,10 +69,10 @@ class Simulation:
         return table
     
     def displayStatistics(self, numberOfEscaped, start_time):
-        label = self.font.render(f"Number of evacuated people: {numberOfEscaped}", True, (255,255,0))
-        label_system_time = self.font.render(f"Time of evacuation: {round(time.time() - start_time, 2) * (SPEED/3)}s", True, (255,255,0))
-        label_user_time = self.font.render(f"Real time: {round(time.time() - start_time, 2)}s", True, (255,255,0))
-        label_speed = self.font.render(f"Speed: x{SPEED}", True, (255, 255, 0))
+        label = self.font.render(f"Number of evacuated people: {numberOfEscaped}", True, YELLOW)
+        label_system_time = self.font.render(f"Time of evacuation: {round(round(time.time() - start_time, 2) * (SPEED/3),2)}s", True, YELLOW)
+        label_user_time = self.font.render(f"Real time: {round(time.time() - start_time, 2)}s", True, YELLOW)
+        label_speed = self.font.render(f"Speed to scale: x{SPEED/SCALE}", True, YELLOW)
         self.screen.fill(BLACK, (0, BOARD_HEIGHT+5, 400, HEIGHT - BOARD_HEIGHT - 10))
         self.screen.blit(label, (10, 200))
         self.screen.blit(label_system_time, (10, 250))
