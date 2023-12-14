@@ -18,6 +18,5 @@ class Validation:
         # print(self.numOfEscaped, EVACUATORS)
         return not self.numOfEscaped >= EVACUATORS
     
-
     def getNumOfEscaped(self):
         return self.numOfEscaped

@@ -91,45 +91,9 @@ class Board:
             for y in range(BUS_TOP_LEFT_Y, BUS_TOP_LEFT_Y + BUS_WIDTH):
                 self.board[x][y].setObstacle()
 
-    def calculateFireAndSmoke(self):
-        for x in range(1, BOARD_WIDTH - 1):
-            for y in range(1, BOARD_HEIGHT - 1):
-                fire_value = self.board[x][y].getFireValue()
-                smoke_value = self.board[x][y].getSmokeValue()
-                # Symulacja rozprzestrzeniania się ognia
-                if fire_value > 0:
-                    for i in range(-1, 2):
-                        for j in range(-1, 2):
-                            if not (i == 0 and j == 0):
-                                neighbor_x = x + i
-                                neighbor_y = y + j
-                                if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
-                                    # Prawdopodobieństwo, że ogień się rozprzestrzeni
-                                    spread_probability = 0.8
-                                    if random.random() < spread_probability:
-                                        self.board[neighbor_x][neighbor_y].setFireValue(fire_value * 0.8)
-                # Symulacja rozprzestrzeniania się dymu
-                if smoke_value > 0:
-                    # Rozprzestrzenianie się dymu w górę
-                    self.board[x][y - 1].setSmokeValue(smoke_value * 0.7)
-                    for i in range(-1, 2):
-                        neighbor_x = x + i
-                        neighbor_y = y
-                        if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
-                            self.board[neighbor_x][neighbor_y].setSmokeValue(smoke_value * 0.5)
-                # Źródło ognia i dymu
-                if fire_value == 0 and smoke_value == 0:
-                    source_probability = 0.01
-                    if random.random() < source_probability:
-                        intensity = random.randint(50, 100)  # Losowa intensywność ognia
-                        density = random.randint(20, 50)  # Losowa gęstość dymu
-                        self.board[x][y].setFireValue(intensity)
-                        self.board[x][y].setSmokeValue(density)
-
     def initializeFire(self, fire_sources):
         for source in fire_sources:
             x, y, size, intensity = source
-            # intensity = random.randint(50, 100)  # Random intensity for each fire source
             for i in range(-size // 2, size // 2 + 1):
                 for j in range(-size // 2, size // 2 + 1):
                     neighbor_x = x + i
@@ -179,7 +143,6 @@ class Board:
                 taken_value = int(self.board[move_x][move_y].isTakenByMan())
                 
                 ### FIRE CALCULATION START ###
-                # Calculate distance to the nearest fire source
                 min_distance_to_fire = min(
                     math.sqrt(pow(fx - move_x, 2) + pow(fy - move_y, 2))
                     for fx, fy, size, intensity in fire_sources
@@ -194,8 +157,6 @@ class Board:
                 else:
                     pass
 
-
-                # Modify moveProbability based on the distance to the fire
                 moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * np.abs(min_distance_to_fire / distance_threshold)
                 ### FIRE CALCULATION END ###
 
