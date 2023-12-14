@@ -46,6 +46,12 @@ class Cell:
 
     def getFireValue(self):
         return self.Layers[LayerType.FIRE.value].getValue()
+    
+    def initializeFire(self, value):
+        self.Layers[LayerType.FIRE.value].setValue(value)
+
+    def initializeSmoke(self, value):
+        self.Layers[LayerType.SMOKE.value].setValue(value)
 
     def getSmokeValue(self):
         return self.Layers[LayerType.SMOKE.value].getValue()

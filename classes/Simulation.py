@@ -19,16 +19,14 @@ class Simulation:
         self.font = pygame.font.Font(None, 25)
 
     def run(self, fire_sources):
-    # def run(self):
         validator = Validation()
         start_time = time.time()
+        self.board.initializeFire(fire_sources)
         while validator.final() and self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-
             updated_people = []
-            # print(len(self.peopleInBus))
             if len(self.peopleInBus) > 0:
                 peopleWhoLeft = self.peopleInBus[:5]
                 self.peopleInBus = self.peopleInBus[5:]
@@ -37,22 +35,15 @@ class Simulation:
             index = 0
             for man in self.peopleInTunnel:
                 man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed(), fire_sources))
-                # man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed()))
                 if not validator.update(man.getXYPosition()):
                     updated_people.append(man)
                 else:
                     self.board.removeMan(man.getXYPosition())
                 man.draw()
-                index+=1
-            
+                index += 1
             self.peopleInTunnel = updated_people
-            self.displayStatistics(validator.getNumOfEscaped(), start_time)    
-            
+            self.displayStatistics(validator.getNumOfEscaped(), start_time)
             pygame.display.flip()
-        
-        end_time = time.time()
-        print(SPEED/3 * (end_time - start_time))
-        print("CZAS RZECZYWISTY: ", end_time - start_time)
     
     def input(self, events):
         for event in events:

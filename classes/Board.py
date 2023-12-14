@@ -101,10 +101,19 @@ class Board:
                     if 0 <= neighbor_x < BOARD_WIDTH and 0 <= neighbor_y < BOARD_HEIGHT:
                         self.board[neighbor_x][neighbor_y].setFireValue(intensity)
 
-    def initializeSmoke(self):
+    def initializeSmoke(self, experiment_no):
         for x in range(1, BOARD_WIDTH - 1):
             for y in range(1, BOARD_HEIGHT - 1):
-                density = random.randint(20, 50)  # Losowa gęstość dymu
+                if experiment_no == 0:
+                    density = 0
+                elif experiment_no == 1:
+                    density = random.randint(10, 20)
+                elif experiment_no == 2:
+                    density = random.randint(40, 50)
+                elif experiment_no == 3:
+                    density = random.randint(80, 90)
+                elif experiment_no == 4:
+                    density = random.randint(100, 110)
                 self.board[x][y].setSmokeValue(density)
 
     def calcualteStaticLayer(self):
@@ -120,36 +129,30 @@ class Board:
             for y in range(BOARD_HEIGHT):
                 self.board[x][y].setLayerVal(LayerType.DYNAMIC, 0)
 
-    def calculateMove(self, positionXY, speed, fire_sources): # z omijaniem ognia
-    # def calculateMove(self, positionXY, speed): # bez omijania ognia
+    def calculateMove(self, positionXY, speed, fire_sources):
         x, y = positionXY
         newDynamic = 0
         bestMove = float('-inf')
         bestPosition = positionXY
-        moves = [(x,y)]
-        for distance in range(1, speed+1):
+        moves = [(x, y)]
+        for distance in range(1, speed + 1):
             moves.append((x, y + distance))
             moves.append((x, y - distance))
-            moves.append((x+distance, y))
-            moves.append((x-distance, y))
+            moves.append((x + distance, y))
+            moves.append((x - distance, y))
 
-        # print("MOVES: ",  moves)
-        
         for move_x, move_y in moves:
             if 0 <= move_x < BOARD_WIDTH and 0 <= move_y < BOARD_HEIGHT:
-                static_value = 1 -  self.board[move_x][move_y].getStaticValue()
+                static_value = 1 - self.board[move_x][move_y].getStaticValue()
                 dynamic_value = self.board[move_x][move_y].getDynamicValue()
                 obstacle_value = int(self.board[move_x][move_y].isObstacle())
                 taken_value = int(self.board[move_x][move_y].isTakenByMan())
-                
-                ### FIRE CALCULATION START ###
-                min_distance_to_fire = min(
-                    math.sqrt(pow(fx - move_x, 2) + pow(fy - move_y, 2))
-                    for fx, fy, size, intensity in fire_sources
-                )
 
-                distance_threshold = 10
+                smoke_density = self.board[move_x][move_y].getSmokeValue()
+                speed_reduction = 1 - SMOKE_SPEED_REDUCTION * smoke_density/110
 
+                min_distance_to_fire = min(math.sqrt(pow(fx - move_x, 2) + pow(fy - move_y, 2)) for fx, fy, size, intensity in fire_sources)
+                distance_threshold = 5
                 if min_distance_to_fire >= distance_threshold:
                     min_distance_to_fire = distance_threshold
                 elif min_distance_to_fire <= 0:
@@ -157,28 +160,16 @@ class Board:
                 else:
                     pass
 
-                moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * np.abs(min_distance_to_fire / distance_threshold)
-                ### FIRE CALCULATION END ###
+                moveProbability = (random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * np.abs(min_distance_to_fire / distance_threshold) * speed_reduction)
 
-                # TODO:
-                # current_value
-                # wzor = N * current_value * math.exp(alfa*dynamic_value) * math.exp(beta*static_value) * (1-isObstacle()) * (1-isOtherMan())
-                # fire_value = self.board[move_x][move_y].getFireValue()  # Nowa linia do pobrania wartości ognia
-                # moveProbability = random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value)
-                # print("Probability: ", moveProbability, bestMove, move_x, move_y, dynamic_value, static_value)
                 if moveProbability > bestMove and moveProbability > 0:
-                    # print("NEW ", math.exp(ALFA*dynamic_value), math.exp(BETA*static_value))
                     bestMove = moveProbability
                     newDynamic = dynamic_value
                     bestPosition = (move_x, move_y)
-        best_x, best_y = bestPosition
-        # print("Best move: ", bestMove, best_x-x, best_y-y)    
-        # print(bestMove)
-        # if(newDynamic > 0):
-        #     print(static_value, newDynamic)
-        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, newDynamic+DYNAMIC_INCREMENT)
-        self.board[x][y].setLayerVal(LayerType.DYNAMIC, newDynamic-DYNAMIC_INCREMENT)
 
+        best_x, best_y = bestPosition
+        self.board[best_x][best_y].setLayerVal(LayerType.DYNAMIC, newDynamic + DYNAMIC_INCREMENT)
+        self.board[x][y].setLayerVal(LayerType.DYNAMIC, newDynamic - DYNAMIC_INCREMENT)
         self.board[best_x][best_y].setTakenByMan(True)
         self.board[x][y].setTakenByMan(False)
         return bestPosition

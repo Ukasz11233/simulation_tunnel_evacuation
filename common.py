@@ -10,5 +10,4 @@ class LayerType(Enum):
     FIRE = 4
     SMOKE = 5
 
-
 CELL_SIZE = WIDTH // BOARD_WIDTH
