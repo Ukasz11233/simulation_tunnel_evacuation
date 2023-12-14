@@ -44,6 +44,9 @@ class Simulation:
             self.peopleInTunnel = updated_people
             self.displayStatistics(validator.getNumOfEscaped(), start_time)
             pygame.display.flip()
+        end_time = time.time()
+        print(SPEED/3 * (end_time - start_time))
+        print("CZAS RZECZYWISTY: ", end_time - start_time)
     
     def input(self, events):
         for event in events:
