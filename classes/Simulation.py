@@ -18,7 +18,8 @@ class Simulation:
         self.peopleInBus = self.bus_position()
         self.font = pygame.font.Font(None, 25)
 
-    def run(self):
+    def run(self, fire_sources):
+    # def run(self):
         validator = Validation()
         start_time = time.time()
         while validator.final() and self.running:
@@ -35,7 +36,8 @@ class Simulation:
             self.board.updateBoardLayers()
             index = 0
             for man in self.peopleInTunnel:
-                man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed()))
+                man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed(), fire_sources))
+                # man.move(self.board.calculateMove(man.getXYPosition(), man.getSpeed()))
                 if not validator.update(man.getXYPosition()):
                     updated_people.append(man)
                 else:
