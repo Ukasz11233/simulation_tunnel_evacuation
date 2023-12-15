@@ -151,17 +151,19 @@ class Board:
                 smoke_density = self.board[move_x][move_y].getSmokeValue()
                 speed_reduction = 1 - SMOKE_SPEED_REDUCTION * smoke_density/110
 
-                min_distance_to_fire = min(math.sqrt(pow(fx - move_x, 2) + pow(fy - move_y, 2)) for fx, fy, size, intensity in fire_sources)
-                distance_threshold = 5
-                if min_distance_to_fire >= distance_threshold:
-                    min_distance_to_fire = distance_threshold
-                elif min_distance_to_fire <= 0:
-                    min_distance_to_fire = 0.000000000001
+                if fire_sources:
+                    min_distance_to_fire = min(math.sqrt(pow(fx - move_x, 2) + pow(fy - move_y, 2)) for fx, fy, size, intensity in fire_sources)
+                    distance_threshold = 5
+                    if min_distance_to_fire >= distance_threshold:
+                        min_distance_to_fire = distance_threshold
+                    elif min_distance_to_fire <= 0:
+                        min_distance_to_fire = 0.000000000001
+                    else:
+                        pass
+                    moveProbability = (random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * np.abs(min_distance_to_fire / distance_threshold) * speed_reduction)
                 else:
-                    pass
-
-                moveProbability = (random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * np.abs(min_distance_to_fire / distance_threshold) * speed_reduction)
-
+                    moveProbability = (random.uniform(0.98, 1) * math.exp(ALFA * dynamic_value) * math.exp(BETA * static_value) * (1 - obstacle_value) * (1 - taken_value) * speed_reduction)
+                
                 if moveProbability > bestMove and moveProbability > 0:
                     bestMove = moveProbability
                     newDynamic = dynamic_value
