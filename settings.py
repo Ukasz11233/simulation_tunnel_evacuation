@@ -1,3 +1,11 @@
+from main import *
+
+
+### START PARAMETER ###
+EXPERIMENT = 1
+### START PARAMETER ###
+
+
 # WINDOW SIZE
 WIDTH = 1200
 HEIGHT = 700
@@ -29,15 +37,23 @@ BUS_LENGTH = 13 * SCALE
 BUS_WIDTH = int(3* SCALE)
 
 BUS_EXIT_BUFFOR = 2
-# EVACUATORS = 14 * BUS_EXIT_BUFFOR    #ewakuacja 0
-EVACUATORS = 25 * BUS_EXIT_BUFFOR   #ewakuacje 1-3
 
-SPEED = 6 #ewakuacja 0-1
-# SPEED = 7 #ewakuacja 2
-# SPEED = 8 #ewakuacja 3
-EXPERIMENT = 1
-
-
+if EXPERIMENT == 0:
+    SPEED = 6
+    SOURCES = []
+    EVACUATORS = 14 * BUS_EXIT_BUFFOR
+elif EXPERIMENT == 1:
+    SPEED = 6
+    SOURCES = [(120, 10, 3, 50), (125, 25, 4, 100), (130, 40, 3, 75), (220, 40, 3, 75), (250, 25, 3, 75)]
+    EVACUATORS = 25 * BUS_EXIT_BUFFOR
+elif EXPERIMENT == 2:
+    SPEED = 7
+    SOURCES = [(120, 10, 3, 50), (125, 25, 4, 100), (130, 40, 3, 75), (220, 40, 3, 75), (250, 25, 3, 75)]
+    EVACUATORS = 25 * BUS_EXIT_BUFFOR
+elif EXPERIMENT == 3:
+    SPEED = 8
+    SOURCES = [(120, 10, 3, 50), (125, 25, 4, 100), (130, 40, 3, 75), (220, 40, 3, 75), (250, 25, 3, 75)]
+    EVACUATORS = 25 * BUS_EXIT_BUFFOR
 
 #COLORS
 WHITE = (255, 255, 255)
@@ -55,3 +71,6 @@ BETA = 3 #STATIC
 DYNAMIC_INCREMENT = 0.01 * SPEED
 
 SMOKE_SPEED_REDUCTION = 0.5 
+
+
+
