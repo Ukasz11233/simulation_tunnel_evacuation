@@ -1,6 +1,3 @@
-from main import *
-
-
 ### START PARAMETER ###
 EXPERIMENT = 1
 ### START PARAMETER ###
