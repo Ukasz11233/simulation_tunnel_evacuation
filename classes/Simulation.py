@@ -54,7 +54,6 @@ class Simulation:
                 self.running = False
             
     def bus_position(self):
-        # TODO: changing speed and adjusting it to the inner walls -- !!! DONE !!!
         table = []
         for i in range(EVACUATORS // BUS_EXIT_BUFFOR):
             for j in range(BUS_EXIT_BUFFOR):

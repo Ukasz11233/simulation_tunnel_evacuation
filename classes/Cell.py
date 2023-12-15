@@ -60,7 +60,6 @@ class Cell:
         for layer in self.Layers:
             if layer.value == LayerType.OBSTACLE.value:
                 continue
-            # if layer.value == LayerType.FIRE.value:
 
     def isTakenByMan(self) -> bool:
         return self.isTaken
