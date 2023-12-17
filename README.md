@@ -1,7 +1,9 @@
 # simulation_tunnel_evacuation
 
 ## HOW TO RUN
- 
+
+pip install -r requirements.txt:
+
 python main.py
 
 ## HOW TO CHANGE EXPERIMENT:
